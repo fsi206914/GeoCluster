@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Select a user ID to display check-in distribution</title>
+  <script type="text/javascript" src="http://google-maps-utility-library-v3.googlecode.com/svn/tags/markerclusterer/1.0/src/markerclusterer.js"></script>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+  <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+  <script type="text/javascript" src="gmaps.js"></script>
+  <script type="text/javascript" src="StyledMarker.js"></script>
+  <link rel="stylesheet" href="http://twitter.github.com/bootstrap/1.3.0/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="examples.css" />
+
+
+
+<script type="text/javascript">
+
+    var map;
+    var map_2;
+    var map_3;
+    newMap();
+
+function newMap() {
+    $(document).ready(function(){
+      map = new GMaps({
+        div: '#map',
+	zoom: 10,
+        lat: 32.609857,
+        lng: -85.480782,
+
+      });
+
+//var circleOptions = {
+//          lat: 32.609857,
+//          lng: -85.480782,
+//          radius: 9500,
+//        };
+//
+//    map.drawCircle(circleOptions);
+
+      map_2 = new GMaps({
+        div: '#map_2',
+        lat: 32.609857,
+        lng: -85.480782,
+	zoom: 10,
+        markerClusterer: function(map_2) {
+          return new MarkerClusterer(map_2);
+        }
+      });
+
+});
+
+}
+
+function InitialMap(latitude, longitude) {
+    $(document).ready(function(){
+      map = new GMaps({
+        div: '#map',
+	zoom: 10,
+        lat: latitude,
+        lng: longitude,
+
+      });
+
+   });
+}
+
+function InitialMap_2(latitude, longitude) {
+    $(document).ready(function(){
+      map_2 = new GMaps({
+        div: '#map_2',
+	zoom: 10,
+        lat: latitude,
+        lng: longitude,
+//        markerClusterer: function(map) {
+//          return new MarkerClusterer(map);
+//        }
+      });
+
+});
+}
+
+
+function xml_http_post(data, func ) {
+
+	var json = { };
+	json["data"] = data;
+	json["func"] = func;
+	if(func==1)
+	{
+		$.ajax("/ajax/hvcnext", {
+	   	 type: "post",
+		    data: JSON.stringify(json),
+		    contentType:"application/json; charset=utf-8",
+		    dataType:"json",
+		    success: next_handler,
+		});
+	}
+
+	if(func==4)
+	{
+		$.ajax("/ajax/hvcnext", {
+	   	 type: "post",
+		    data: JSON.stringify(json),
+		    contentType:"application/json; charset=utf-8",
+		    dataType:"json",
+		    success: next_handler_4,
+		});
+	}
+}
+
+function test_button() {
+    var num_cluster = hideText();
+    var data = document.test_form.test_text.value;
+    var func=1;
+    xml_http_post(data,func);
+}
+
+function ClusterNumberRet() {
+    var num_cluster =inPutId.value;
+//    alert(num_cluster);
+    var func = 4;
+    xml_http_post(num_cluster,func);
+}
+
+function appendText(id)
+{
+	var txt2=$("<p></p>").text(id);  // Create text with jQuery
+	$("#insert").append($("<li></li>").text(id));
+}
+
+
+function next_handler(response) {
+
+	var length = response.latitude.length;
+	hideText();
+	for(var i =0; i<length; i++)
+	{
+	var latitude = response.latitude[i];
+	var longitude = response.longitude[i];
+	if(i==0)InitialMap(latitude,longitude);
+	map.addMarker({lat: latitude,lng: longitude,title: 'Marker #' +i+1});
+
+	}
+
+   length = response.friends.length;
+	var data = response.myOwn;
+        var titleText = "this ID = <strong>"+data.toString()+ "</strong>.     His friends are as follows:";
+//	$("#insertID").append(titleText.toString());
+
+	$("#insert").append(titleText.toString());
+	for(var i =0; i<length; i++)
+	{
+	var id = response.friends[i];
+	appendText(id);
+	}
+
+}
+
+function next_handler_4(response) {
+
+//	alert(ret);
+
+	var length = response.latitude.length;
+
+	for(var i =0; i<length; i++)
+	{
+	var latitude = response.latitude[i];
+	var longitude = response.longitude[i];
+	if(i==0)InitialMap_2(latitude,longitude);
+
+//	map_2.addMarker({lat: latitude,lng: longitude,title: 'Marker #' +i+1});
+
+    var CircleRadius =response.MaxDist[i]*100000/2;
+    var circleOptions = {
+          lat: latitude,
+          lng: longitude,
+          radius: CircleRadius,
+        };
+
+    map_2.drawCircle(circleOptions);
+
+
+	}
+
+//    $('#myimg').text(" ")
+//    $("#myimg").html(' <img src="temp.png" name="myCam" onload="refreshIt(this)"> ');
+
+
+//    n = document.createElement('img'); // create an image element
+//    n.src = 'temp.png'; // relative path to the image
+//
+//    $("#insertID").appendChild(n);
+//
+
+}
+
+function refreshIt(element) {
+    setTimeout(function() {
+        element.src = element.src.split('?')[0] + '?' + new Date().getTime();
+        refreshIt(element);
+                }, 50); // refresh every 50ms
+            }
+
+
+function tryNewMarker() {
+
+	map_2.addMarker({lat: 32.609857 ,lng: -85.480782,title: 'Marker #'+1});
+}
+
+function hideText() {
+
+    $('#insertID').text("Please assign the maximum number of clusters: ")
+    $('#insert').text(" ")
+
+    $('#myimg').text(" ")
+    var form = $("<form/>",
+                     { action:'/myaction'}
+                );
+    form.append(
+        $("<input/>",
+             { type:'text',
+           id:'inPutId',
+    //           placeholder:'Keywords',
+               name:'keyword',
+               value:'number',
+               style:'width:65%' }
+         )
+    );
+
+    form.append(
+         $("<input/>",
+              {
+            type:'button',
+                value:'Submit',
+                style:'width:20%' ,
+            onClick:'ClusterNumberRet()'
+          }
+           )
+    );
+    $("#insert").append(form);
+
+}
+
+</script>
+
+</head>
+
+
+<body>
+<script type="text/javascript">
+
+
+</script>
+
+<form name=test_form>
+Select a user ID to display check-in distribution(0---196585)
+<input type="text" name="test_text" value="0" size="4">
+
+<span id="test_result">  </span>
+<input type=button onClick="test_button();" value="start" title="start">
+</form>
+
+  <h1>Cluster one user's geo-distribution</h1>
+  <div class="row">
+    <div class="span11">
+
+      <div id="map"></div>
+
+	<p><br></p>
+	<p>&nbsp;</p>
+
+<!--	<form name=test_form_2>-->
+<!--	Select a user ID to display all his friends' geo-distribution-->
+<!--	<input type="text" name="test_text_2" value="0" size="4">-->
+
+<!--	<span id="test_result_2">  </span>-->
+<!--	<input type=button onClick="test_button_2();" value="start" title="start">-->
+<!--	</form>-->
+
+
+      <div id="map_2"></div>
+
+
+    </div>
+    <div class="span6">
+      <p> <font size="8"> by  <a href="http://www.auburn.edu/~lzt0006/">Liang Tang </a>.  </font></p>
+
+	<p>&nbsp;</p>
+
+
+	<p id="insertID" >   </p>
+	<ol id="insert" >   </ol>
+
+
+	<form id="insertForm">
+	<div id="myimg">  </div>
+
+<!--    <img id="foo" width="330" height="330" src="./temp.png" >   </img> -->
+
+	</form>
+
+ <p>I designed the app to implement Model-based Clustering[1] (Mclust) for clustering geo-distribution. The check-in information is modeled as a mixture of a series of 2-dimensional gaussian distributions. After you give the maximum number of cluster you want, Mclust iteratively decides whether K, the number of clusters is steady.</p>
+
+
+<p>[1]. C. Fraley and A. E. Raftery. Model-based clustering, discriminant
+analysis, and density estimation. Journal of the American Statistical
+Association, 97(458):611–631, 2002. </p>
+
+    <button onclick="hideText()">hideFriendsList</button>
+
+
+    </div>
+  </div>
+</body>
+</html>

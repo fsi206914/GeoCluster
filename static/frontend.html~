@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>GMaps.js &mdash; Marker Clusterer</title>
+  <script type="text/javascript" src="http://google-maps-utility-library-v3.googlecode.com/svn/tags/markerclusterer/1.0/src/markerclusterer.js"></script>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+  <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+  <script type="text/javascript" src="gmaps.js"></script>
+  <link rel="stylesheet" href="http://twitter.github.com/bootstrap/1.3.0/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="examples.css" />
+
+
+
+<script type="text/javascript">
+
+    var map;
+
+    newMap();
+function newMap() {
+    $(document).ready(function(){
+      map = new GMaps({
+        div: '#map',
+        lat: 30.2359091167,
+        lng: -97.7951395833,
+        markerClusterer: function(map) {
+          return new MarkerClusterer(map);
+        }
+      });
+
+});
+}
+
+function xml_http_post(data ) {
+
+	var submitNumber = parseInt(data);
+
+        $.ajax("/ajax/hvcnext", {
+            type: "post",
+            data: JSON.stringify(submitNumber),
+            contentType:"application/json; charset=utf-8",
+            dataType:"json",
+            success: next_handler,
+        });
+
+}
+
+function test_button() {
+    newMap();
+    var data = document.test_form.test_text.value;
+    xml_http_post(data);
+}
+
+function next_handler(response) {
+
+	var ret = response.response
+	alert(ret);  
+
+	var latitude = 30.2359091167;
+	var longitude = -97.7951395833;
+	map.addMarker({lat: latitude,lng: longitude,title: 'Marker #' +1});
+
+	var latitude = 30.2691029532;
+	var longitude = -97.7493953705;
+	map.addMarker({lat: latitude,lng: longitude,title: 'Marker #' +2});
+	
+}
+</script>
+
+</head>
+
+
+<body>
+<script type="text/javascript">
+
+
+</script>
+
+<form name=test_form>
+Select a user ID to display check-in distribution
+<input type="text" name="test_text" value="0" size="4">
+
+<span id="test_result">  </span>
+<input type=button onClick="test_button();" value="start" title="start">
+</form>
+
+  <h1>GMaps.js &mdash; Marker Clusterer</h1>
+  <div class="row">
+    <div class="span11">
+      <div id="map"></div>
+    </div>
+    <div class="span6">
+      <p>With GMaps.js you can use a marker clusterer to group large amount of markers:</p>
+      <pre>map = new GMaps({
+  div: '#map',
+  lat: -12.043333,
+  lng: -77.028333,
+  markerClusterer: function(map) {
+    return new MarkerClusterer(map);
+  }
+});</pre>
+      <p>You can use MarkerClusterer or MarkerClustererPlus. If you want to use a custom marker clustering library, you have to define a <code>addMarker</code> method.</p>
+      <p><span class="label notice">Note:</span> Read more about MarkerClusterer and MarkerClustererPlus <a href="http://code.google.com/p/google-maps-utility-library-v3/wiki/Libraries">here</a>.</p>
+    </div>
+  </div>
+</body>
+</html>

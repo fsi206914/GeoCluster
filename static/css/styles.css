@@ -1,0 +1,21 @@
+.block_title {
+    margin-bottom: 4px;
+    margin-top: 32px;
+}
+
+body {
+    padding-bottom: 64px;
+    padding-top: 64px;
+}
+
+.btn-number {
+    min-width: 32px;
+}
+
+#spinner_wrapper {
+    padding: 30px;
+}
+
+h1 {
+    margin-bottom: 32px;
+}
