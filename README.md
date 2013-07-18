@@ -21,6 +21,8 @@ Other packages you need
 * mclust in R
 * python (2.7 or above)
 * Rpy2 in Python
+* torndao in Python
+
 
 Usage
 ------------------
